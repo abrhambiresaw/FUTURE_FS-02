@@ -359,3 +359,188 @@ async function start() {
 }
 
 start();
+
+app.get("/api/customers", authRequired, async (req, res) => {
+  try {
+    const customers = await Customer.find().sort({ createdAt: -1 });
+    res.json({ success: true, data: customers });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+app.post("/api/customers", authRequired, async (req, res) => {
+  try {
+    const customer = await Customer.create(req.body);
+    res.json({ success: true, data: customer });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+});
+
+app.put("/api/customers/:id", authRequired, async (req, res) => {
+  try {
+    const customer = await Customer.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+    });
+    if (!customer)
+      return res
+        .status(404)
+        .json({ success: false, message: "Customer not found" });
+    res.json({ success: true, data: customer });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+});
+
+app.delete("/api/customers/:id", authRequired, async (req, res) => {
+  try {
+    await Customer.findByIdAndDelete(req.params.id);
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+app.get("/api/tasks", authRequired, async (req, res) => {
+  try {
+    const tasks = await Task.find().sort({ createdAt: -1 });
+    res.json({ success: true, data: tasks });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+app.post("/api/tasks", authRequired, async (req, res) => {
+  try {
+    const task = await Task.create(req.body);
+    res.json({ success: true, data: task });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+});
+
+app.put("/api/tasks/:id", authRequired, async (req, res) => {
+  try {
+    const task = await Task.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+    });
+    if (!task)
+      return res
+        .status(404)
+        .json({ success: false, message: "Task not found" });
+    res.json({ success: true, data: task });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+});
+
+app.delete("/api/tasks/:id", authRequired, async (req, res) => {
+  try {
+    await Task.findByIdAndDelete(req.params.id);
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+app.get("/api/leads", authRequired, async (req, res) => {
+  try {
+    const leads = await Lead.find().sort({ createdAt: -1 });
+    res.json({ success: true, data: leads });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+app.post("/api/leads", authRequired, async (req, res) => {
+  try {
+    const lead = await Lead.create(req.body);
+    res.json({ success: true, data: lead });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+});
+
+app.put("/api/leads/:id", authRequired, async (req, res) => {
+  try {
+    const lead = await Lead.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+    });
+    if (!lead)
+      return res
+        .status(404)
+        .json({ success: false, message: "Lead not found" });
+    res.json({ success: true, data: lead });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+});
+
+app.delete("/api/leads/:id", authRequired, async (req, res) => {
+  try {
+    await Lead.findByIdAndDelete(req.params.id);
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+app.get("/api/deals", authRequired, async (req, res) => {
+  try {
+    const deals = await Deal.find().sort({ createdAt: -1 });
+    res.json({ success: true, data: deals });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+app.post("/api/deals", authRequired, async (req, res) => {
+  try {
+    const deal = await Deal.create(req.body);
+    res.json({ success: true, data: deal });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+});
+
+app.put("/api/deals/:id", authRequired, async (req, res) => {
+  try {
+    const deal = await Deal.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+    });
+    if (!deal)
+      return res
+        .status(404)
+        .json({ success: false, message: "Deal not found" });
+    res.json({ success: true, data: deal });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+});
+
+app.delete("/api/deals/:id", authRequired, async (req, res) => {
+  try {
+    await Deal.findByIdAndDelete(req.params.id);
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+app.get("/api/sync-all", authRequired, async (req, res) => {
+  try {
+    const [customers, leads, deals, tasks] = await Promise.all([
+      Customer.find(),
+      Lead.find(),
+      Deal.find(),
+      Task.find(),
+    ]);
+    res.json({
+      success: true,
+      data: { customers, leads, deals, tasks },
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
