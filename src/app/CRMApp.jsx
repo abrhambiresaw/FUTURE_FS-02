@@ -17,6 +17,7 @@ import {
   profiles,
   revenueSeries,
 } from "./data";
+import { ModalShell } from "./components/Primitives.jsx";
 import { renderAppShell } from "./pages/AppPages";
 import { renderAuthPage } from "./pages/crmPages";
 import "../App.css";
@@ -49,10 +50,12 @@ function CRMApp() {
       tasks: initialTasks,
       settings: initialSettings,
       selectedCustomerId: initialCustomers[0]?.id,
-    })
+    }),
   );
   const [route, setRoute] = useState(() =>
-    typeof window === "undefined" ? "/" : normalizePath(window.location.pathname)
+    typeof window === "undefined"
+      ? "/"
+      : normalizePath(window.location.pathname),
   );
   const [search, setSearch] = useState("");
   const [notificationsOpen, setNotificationsOpen] = useState(false);
@@ -73,13 +76,6 @@ function CRMApp() {
     forgot: { email: defaultEmail },
   }));
 
-  // Demo users for login
-  const demoUsers = [
-    { email: "jordan@crmsuite.com", password: "demo123", name: "Jordan Lee", role: "Admin" },
-    { email: "mia@crmsuite.com", password: "demo123", name: "Mia Carter", role: "Manager" },
-    { email: "alex@crmsuite.com", password: "demo123", name: "Alex Kim", role: "Sales Agent" },
-  ];
-
   useEffect(() => {
     const timer = window.setTimeout(() => setLoading(false), 600);
     return () => window.clearTimeout(timer);
@@ -90,22 +86,15 @@ function CRMApp() {
   }, [preferences.theme]);
 
   useEffect(() => {
-    window.localStorage.setItem("crm-suite-preferences", JSON.stringify(preferences));
+    window.localStorage.setItem(
+      "crm-suite-preferences",
+      JSON.stringify(preferences),
+    );
   }, [preferences]);
 
   useEffect(() => {
     window.localStorage.setItem("crm-suite-data", JSON.stringify(data));
   }, [data]);
-
-  // Prevent horizontal scrolling
-  useEffect(() => {
-    document.body.style.overflowX = "hidden";
-    document.documentElement.style.overflowX = "hidden";
-    return () => {
-      document.body.style.overflowX = "";
-      document.documentElement.style.overflowX = "";
-    };
-  }, []);
 
   useEffect(() => {
     const onPopState = () => setRoute(normalizePath(window.location.pathname));
@@ -133,14 +122,15 @@ function CRMApp() {
 
   const currentRoute = parseRoute(route);
   const currentProfile = profiles[preferences.role];
-  const canAccessSettings = preferences.role === "Admin" || preferences.role === "Manager";
+  const canAccessSettings =
+    preferences.role === "Admin" || preferences.role === "Manager";
 
   const visibleCustomers = useMemo(() => {
     const term = search.toLowerCase();
     return data.customers.filter((customer) =>
       [customer.name, customer.company, customer.email, customer.status].some(
-        (value) => value?.toLowerCase().includes(term)
-      )
+        (value) => value?.toLowerCase().includes(term),
+      ),
     );
   }, [data.customers, search]);
 
@@ -148,8 +138,8 @@ function CRMApp() {
     const term = search.toLowerCase();
     return data.leads.filter((lead) =>
       [lead.name, lead.company, lead.stage, lead.assigned, lead.source].some(
-        (value) => value?.toLowerCase().includes(term)
-      )
+        (value) => value?.toLowerCase().includes(term),
+      ),
     );
   }, [data.leads, search]);
 
@@ -157,30 +147,42 @@ function CRMApp() {
     const term = search.toLowerCase();
     return data.deals.filter((deal) =>
       [deal.title, deal.customer, deal.stage].some((value) =>
-        value?.toLowerCase().includes(term)
-      )
+        value?.toLowerCase().includes(term),
+      ),
     );
   }, [data.deals, search]);
 
   const visibleTasks = useMemo(() => {
     const term = search.toLowerCase();
     return data.tasks.filter((task) =>
-      [task.title, task.description, task.assigned, task.status, task.priority].some(
-        (value) => value?.toLowerCase().includes(term)
-      )
+      [
+        task.title,
+        task.description,
+        task.assigned,
+        task.status,
+        task.priority,
+      ].some((value) => value?.toLowerCase().includes(term)),
     );
   }, [data.tasks, search]);
 
   const groupedLeads = useMemo(
-    () => leadStages.map((stage) => ({ stage, items: visibleLeads.filter((lead) => lead.stage === stage) })),
-    [visibleLeads]
+    () =>
+      leadStages.map((stage) => ({
+        stage,
+        items: visibleLeads.filter((lead) => lead.stage === stage),
+      })),
+    [visibleLeads],
   );
-  
+
   const groupedDeals = useMemo(
-    () => dealStages.map((stage) => ({ stage, items: visibleDeals.filter((deal) => deal.stage === stage) })),
-    [visibleDeals]
+    () =>
+      dealStages.map((stage) => ({
+        stage,
+        items: visibleDeals.filter((deal) => deal.stage === stage),
+      })),
+    [visibleDeals],
   );
-  
+
   const analytics = useMemo(
     () => ({
       monthlyRevenue: revenueSeries,
@@ -188,19 +190,24 @@ function CRMApp() {
       customerGrowth: [10, 18, 22, 30, 29, 36, 42, 48, 53, 60, 68, 76],
       performance: [82, 88, 77, 93, 86],
     }),
-    []
+    [],
   );
 
   const filteredNotifications = useMemo(() => {
     const term = search.toLowerCase();
     return notifications.filter((item) =>
-      [item.title, item.detail, item.type].some((value) => value.toLowerCase().includes(term))
+      [item.title, item.detail, item.type].some((value) =>
+        value.toLowerCase().includes(term),
+      ),
     );
   }, [search]);
 
   const selectedCustomer = useMemo(
-    () => data.customers.find((customer) => String(customer.id) === String(data.selectedCustomerId)) ?? data.customers[0],
-    [data.customers, data.selectedCustomerId]
+    () =>
+      data.customers.find(
+        (customer) => String(customer.id) === String(data.selectedCustomerId),
+      ) ?? data.customers[0],
+    [data.customers, data.selectedCustomerId],
   );
 
   function navigate(path, replace = false) {
@@ -214,7 +221,6 @@ function CRMApp() {
   }
 
   function openModal(entity, mode, record = null) {
-    console.log("Opening modal:", { entity, mode, record });
     setModal({ entity, mode, record });
   }
 
@@ -238,49 +244,40 @@ function CRMApp() {
     const draft = authDrafts[page];
     const email = String(draft.email ?? "").trim();
     const password = String(draft.password ?? "");
-    
+
     setAuthBusy(true);
     setAuthMessage("");
 
     try {
       if (page === "login") {
-        // Check against demo users
-        const user = demoUsers.find(u => u.email === email && u.password === password);
-        if (!user) {
-          throw new Error("Invalid email or password. Try: jordan@crmsuite.com / demo123");
-        }
         
-        setPreferences((current) => ({
-          ...current,
-          isAuthenticated: true,
-          role: user.role,
-        }));
-        setAuthMessage("Signed in successfully.");
-        navigate("/dashboard", true);
-        return;
+        if (email && password) {
+          setPreferences((current) => ({ ...current, isAuthenticated: true }));
+          navigate("/dashboard", true);
+          return;
+        } else {
+          throw new Error("Please enter email and password");
+        }
       }
-      
+
       if (page === "register") {
         const name = String(draft.name ?? "").trim();
         const company = String(draft.company ?? "").trim();
-        
+
         if (!name) throw new Error("Full name is required.");
         if (!company) throw new Error("Company name is required.");
-        if (password.length < 6) throw new Error("Password must be at least 6 characters.");
-        
-        // Auto-login after registration
-        setPreferences((current) => ({
-          ...current,
-          isAuthenticated: true,
-          role: "Manager",
-        }));
+        if (password.length < 6)
+          throw new Error("Password must be at least 6 characters.");
+
+        setPreferences((current) => ({ ...current, isAuthenticated: true }));
         setAuthMessage("Account created successfully!");
         navigate("/dashboard", true);
         return;
       }
-      
+
       if (page === "forgot") {
-        setAuthMessage(`Password reset link sent to ${email}`);
+       
+        setAuthMessage(`Password reset link has been sent to ${email}`);
         return;
       }
     } catch (error) {
@@ -290,18 +287,10 @@ function CRMApp() {
     }
   }
 
-  // ========== CRUD OPERATIONS (Local Storage) ==========
-  
+ 
+
   function createCustomerRecord(fields) {
-    const newCustomer = {
-      id: Date.now(),
-      name: fields.name,
-      company: fields.company,
-      email: fields.email,
-      phone: fields.phone || "",
-      status: fields.status || "Lead",
-      lastContact: fields.lastContact || new Date().toISOString().split('T')[0],
-    };
+    const newCustomer = { id: Date.now(), ...fields };
     setData((current) => ({
       ...current,
       customers: [newCustomer, ...current.customers],
@@ -315,7 +304,7 @@ function CRMApp() {
     setData((current) => ({
       ...current,
       customers: current.customers.map((c) =>
-        String(c.id) === String(record.id) ? { ...c, ...fields } : c
+        String(c.id) === String(record.id) ? { ...c, ...fields } : c,
       ),
     }));
     return true;
@@ -324,28 +313,25 @@ function CRMApp() {
   function deleteCustomerRecord(record) {
     setData((current) => {
       const next = { ...current };
-      next.customers = current.customers.filter((item) => String(item.id) !== String(record.id));
+      next.customers = current.customers.filter(
+        (item) => String(item.id) !== String(record.id),
+      );
       if (String(current.selectedCustomerId) === String(record.id)) {
         next.selectedCustomerId = next.customers[0]?.id ?? null;
       }
       return next;
     });
-    if (currentRoute.page === "customer-detail" && String(currentRoute.customerId) === String(record.id)) {
+    if (
+      currentRoute.page === "customer-detail" &&
+      String(currentRoute.customerId) === String(record.id)
+    ) {
       navigate("/customers", true);
     }
     return true;
   }
 
   function createTaskRecord(fields) {
-    const newTask = {
-      id: `task-${Date.now()}`,
-      title: fields.title,
-      description: fields.description || "",
-      due: fields.due || "",
-      priority: fields.priority || "Medium",
-      assigned: fields.assigned || "",
-      status: fields.status || "Open",
-    };
+    const newTask = { id: `task-${Date.now()}`, ...fields };
     setData((current) => ({
       ...current,
       tasks: [newTask, ...current.tasks],
@@ -357,7 +343,7 @@ function CRMApp() {
     setData((current) => ({
       ...current,
       tasks: current.tasks.map((t) =>
-        String(t.id) === String(record.id) ? { ...t, ...fields } : t
+        String(t.id) === String(record.id) ? { ...t, ...fields } : t,
       ),
     }));
     return true;
@@ -366,22 +352,15 @@ function CRMApp() {
   function deleteTaskRecord(record) {
     setData((current) => ({
       ...current,
-      tasks: current.tasks.filter((item) => String(item.id) !== String(record.id)),
+      tasks: current.tasks.filter(
+        (item) => String(item.id) !== String(record.id),
+      ),
     }));
     return true;
   }
 
   function createLeadRecord(fields) {
-    const newLead = {
-      id: `lead-${Date.now()}`,
-      name: fields.name,
-      company: fields.company,
-      contact: fields.contact || "",
-      value: fields.value || "",
-      source: fields.source || "",
-      assigned: fields.assigned || "",
-      stage: fields.stage || "New Lead",
-    };
+    const newLead = { id: `lead-${Date.now()}`, ...fields };
     setData((current) => ({
       ...current,
       leads: [newLead, ...current.leads],
@@ -393,7 +372,7 @@ function CRMApp() {
     setData((current) => ({
       ...current,
       leads: current.leads.map((l) =>
-        String(l.id) === String(record.id) ? { ...l, ...fields } : l
+        String(l.id) === String(record.id) ? { ...l, ...fields } : l,
       ),
     }));
     return true;
@@ -402,20 +381,15 @@ function CRMApp() {
   function deleteLeadRecord(record) {
     setData((current) => ({
       ...current,
-      leads: current.leads.filter((item) => String(item.id) !== String(record.id)),
+      leads: current.leads.filter(
+        (item) => String(item.id) !== String(record.id),
+      ),
     }));
     return true;
   }
 
   function createDealRecord(fields) {
-    const newDeal = {
-      id: `deal-${Date.now()}`,
-      title: fields.title,
-      customer: fields.customer,
-      value: fields.value || "",
-      closeDate: fields.closeDate || "",
-      stage: fields.stage || "Discovery",
-    };
+    const newDeal = { id: `deal-${Date.now()}`, ...fields };
     setData((current) => ({
       ...current,
       deals: [newDeal, ...current.deals],
@@ -427,7 +401,7 @@ function CRMApp() {
     setData((current) => ({
       ...current,
       deals: current.deals.map((d) =>
-        String(d.id) === String(record.id) ? { ...d, ...fields } : d
+        String(d.id) === String(record.id) ? { ...d, ...fields } : d,
       ),
     }));
     return true;
@@ -436,7 +410,9 @@ function CRMApp() {
   function deleteDealRecord(record) {
     setData((current) => ({
       ...current,
-      deals: current.deals.filter((item) => String(item.id) !== String(record.id)),
+      deals: current.deals.filter(
+        (item) => String(item.id) !== String(record.id),
+      ),
     }));
     return true;
   }
@@ -449,14 +425,14 @@ function CRMApp() {
   }
 
   function moveLeadToStage(targetStage, leadId) {
-    const lead = data.leads.find(l => String(l.id) === String(leadId));
+    const lead = data.leads.find((l) => String(l.id) === String(leadId));
     if (lead) {
       updateLeadRecord(lead, { ...lead, stage: targetStage });
     }
   }
 
   function moveDealToStage(targetStage, dealId) {
-    const deal = data.deals.find(d => String(d.id) === String(dealId));
+    const deal = data.deals.find((d) => String(d.id) === String(dealId));
     if (deal) {
       updateDealRecord(deal, { ...deal, stage: targetStage });
     }
@@ -479,10 +455,10 @@ function CRMApp() {
   function handleModalSubmit(event) {
     event.preventDefault();
     if (!modal) return;
-    
+
     const formData = new FormData(event.currentTarget);
     const values = Object.fromEntries(formData.entries());
-    
+
     if (modal.mode === "delete") {
       if (modal.entity === "customer") deleteCustomerRecord(modal.record);
       if (modal.entity === "task") deleteTaskRecord(modal.record);
@@ -491,7 +467,21 @@ function CRMApp() {
       closeModal();
       return;
     }
-    
+
+  
+    if (modal.entity === "settings") {
+      updateSettings(values);
+      closeModal();
+      return;
+    }
+
+    if (modal.mode === "update") {
+      updateSettings(modal.record);
+      closeModal();
+      return;
+    }
+
+   
     if (modal.entity === "customer") {
       if (modal.mode === "edit") updateCustomerRecord(modal.record, values);
       else createCustomerRecord(values);
@@ -508,10 +498,7 @@ function CRMApp() {
       if (modal.mode === "edit") updateDealRecord(modal.record, values);
       else createDealRecord(values);
     }
-    if (modal.entity === "settings") {
-      updateSettings(values);
-    }
-    
+
     closeModal();
   }
 
@@ -520,7 +507,14 @@ function CRMApp() {
   }
 
   function renderAuth() {
-    const authPage = currentRoute.page === "register" ? "register" : currentRoute.page === "forgot-password" ? "forgot" : currentRoute.page === "login" ? "login" : "home";
+    const authPage =
+      currentRoute.page === "register"
+        ? "register"
+        : currentRoute.page === "forgot-password"
+          ? "forgot"
+          : currentRoute.page === "login"
+            ? "login"
+            : "home";
     return renderAuthPage({
       page: authPage,
       preferences,
@@ -532,161 +526,209 @@ function CRMApp() {
       onNavigate: (page) => navigate(pathForPage(page), true),
       onAuthChange: updateAuthDraft,
       onAuthSubmit: submitAuth,
-      onToggleTheme: () => setPreferences((current) => ({ ...current, theme: current.theme === "dark" ? "light" : "dark" })),
-      onCycleRole: () => setPreferences((current) => {
-        const nextRole = current.role === "Admin" ? "Manager" : current.role === "Manager" ? "Sales Agent" : "Admin";
-        setAuthDrafts((drafts) => ({
-          ...drafts,
-          login: { ...drafts.login, email: profiles[nextRole].email },
-          forgot: { ...drafts.forgot, email: profiles[nextRole].email },
-        }));
-        return { ...current, role: nextRole };
-      }),
+      onToggleTheme: () =>
+        setPreferences((current) => ({
+          ...current,
+          theme: current.theme === "dark" ? "light" : "dark",
+        })),
+      onCycleRole: () =>
+        setPreferences((current) => {
+          const nextRole =
+            current.role === "Admin"
+              ? "Manager"
+              : current.role === "Manager"
+                ? "Sales Agent"
+                : "Admin";
+          setAuthDrafts((drafts) => ({
+            ...drafts,
+            login: { ...drafts.login, email: profiles[nextRole].email },
+            forgot: { ...drafts.forgot, email: profiles[nextRole].email },
+          }));
+          return { ...current, role: nextRole };
+        }),
     });
   }
 
   function renderModal() {
     if (!modal) return null;
-    
-    const action = modal.mode === "delete" ? "Delete" : modal.mode === "edit" ? "Edit" : "Create";
-    const entityLabel = modal.entity.charAt(0).toUpperCase() + modal.entity.slice(1);
-    
+
+    const action =
+      modal.mode === "delete"
+        ? "Delete"
+        : modal.mode === "edit"
+          ? "Edit"
+          : "Create";
+    const entityLabel =
+      modal.entity.charAt(0).toUpperCase() + modal.entity.slice(1);
+
     if (modal.mode === "delete") {
       return (
-        <div className="modal-backdrop" onClick={closeModal} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div className="modal card" onClick={(e) => e.stopPropagation()} style={{ backgroundColor: 'white', borderRadius: '12px', padding: '24px', minWidth: '400px', maxWidth: '500px' }}>
-            <div className="section-head modal-head" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
-              <div>
-                <p className="eyebrow" style={{ color: '#666', fontSize: '12px' }}>Confirm action</p>
-                <h2 style={{ margin: 0 }}>{`${action} ${entityLabel}`}</h2>
-              </div>
-              <button type="button" className="icon-button" onClick={closeModal} style={{ background: 'none', border: 'none', fontSize: '20px', cursor: 'pointer' }}>✕</button>
+        <ModalShell
+          title={`${action} ${entityLabel}`}
+          subtitle="Confirm action"
+          onClose={closeModal}
+        >
+          <form className="modal-form" onSubmit={handleModalSubmit}>
+            <p>
+              Are you sure you want to delete{" "}
+              {modal.record?.name ?? modal.record?.title ?? "this record"}?
+            </p>
+            <div className="modal-actions">
+              <button
+                type="button"
+                className="secondary-button"
+                onClick={closeModal}
+              >
+                Cancel
+              </button>
+              <button type="submit" className="primary-button danger-button">
+                Delete
+              </button>
             </div>
-            <form className="modal-form" onSubmit={handleModalSubmit}>
-              <p>Are you sure you want to delete {modal.record?.name ?? modal.record?.title ?? "this record"}?</p>
-              <div className="modal-actions" style={{ display: 'flex', gap: '10px', marginTop: '20px', justifyContent: 'flex-end' }}>
-                <button type="button" className="secondary-button" onClick={closeModal} style={{ padding: '8px 16px', cursor: 'pointer', backgroundColor: '#e5e7eb', border: 'none', borderRadius: '6px' }}>Cancel</button>
-                <button type="submit" className="primary-button danger-button" style={{ padding: '8px 16px', cursor: 'pointer', backgroundColor: '#dc2626', color: 'white', border: 'none', borderRadius: '6px' }}>Delete</button>
-              </div>
-            </form>
-          </div>
-        </div>
+          </form>
+        </ModalShell>
       );
     }
-    
-    // Settings modal
+
     if (modal.entity === "settings") {
       const settings = data.settings;
       return (
-        <div className="modal-backdrop" onClick={closeModal} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div className="modal card" onClick={(e) => e.stopPropagation()} style={{ backgroundColor: 'white', borderRadius: '12px', padding: '24px', minWidth: '400px', maxWidth: '500px' }}>
-            <div className="section-head modal-head" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
-              <div>
-                <p className="eyebrow" style={{ color: '#666', fontSize: '12px' }}>Settings</p>
-                <h2 style={{ margin: 0 }}>Edit Settings</h2>
-              </div>
-              <button type="button" className="icon-button" onClick={closeModal} style={{ background: 'none', border: 'none', fontSize: '20px', cursor: 'pointer' }}>✕</button>
-            </div>
-            <form className="modal-form" onSubmit={handleModalSubmit}>
-              <label style={{ display: 'block', marginBottom: '16px' }}>
-                <span style={{ display: 'block', marginBottom: '4px', fontWeight: '500' }}>Company Name</span>
-                <input type="text" name="companyName" defaultValue={settings.companyName} style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #ccc' }} />
-              </label>
-              <label style={{ display: 'block', marginBottom: '16px' }}>
-                <span style={{ display: 'block', marginBottom: '4px', fontWeight: '500' }}>Notification Email</span>
-                <input type="email" name="notificationEmail" defaultValue={settings.notificationEmail} style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #ccc' }} />
-              </label>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-                <input type="checkbox" name="emailAlerts" defaultChecked={settings.emailAlerts} />
-                <span>Email Alerts</span>
-              </label>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-                <input type="checkbox" name="inAppNotifications" defaultChecked={settings.inAppNotifications} />
-                <span>In-App Notifications</span>
-              </label>
-              <div className="modal-actions" style={{ display: 'flex', gap: '10px', marginTop: '20px', justifyContent: 'flex-end' }}>
-                <button type="button" className="secondary-button" onClick={closeModal} style={{ padding: '8px 16px', cursor: 'pointer', backgroundColor: '#e5e7eb', border: 'none', borderRadius: '6px' }}>Cancel</button>
-                <button type="submit" className="primary-button" style={{ padding: '8px 16px', cursor: 'pointer', backgroundColor: '#2563eb', color: 'white', border: 'none', borderRadius: '6px' }}>Save</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      );
-    }
-    
-    const record = modal.record ?? {};
-    const getFields = () => {
-      switch (modal.entity) {
-        case 'customer': return [
-          { name: 'name', label: 'Name', type: 'text', required: true },
-          { name: 'company', label: 'Company', type: 'text', required: true },
-          { name: 'email', label: 'Email', type: 'email', required: true },
-          { name: 'phone', label: 'Phone', type: 'tel', required: false },
-          { name: 'status', label: 'Status', type: 'select', options: ['Active', 'Lead', 'At Risk'], required: true },
-          { name: 'lastContact', label: 'Last Contact', type: 'date', required: false },
-        ];
-        case 'task': return [
-          { name: 'title', label: 'Title', type: 'text', required: true },
-          { name: 'description', label: 'Description', type: 'textarea', required: false },
-          { name: 'due', label: 'Due Date', type: 'date', required: false },
-          { name: 'priority', label: 'Priority', type: 'select', options: ['High', 'Medium', 'Low'], required: true },
-          { name: 'assigned', label: 'Assigned To', type: 'text', required: false },
-          { name: 'status', label: 'Status', type: 'select', options: ['Open', 'In Progress', 'Done'], required: true },
-        ];
-        case 'lead': return [
-          { name: 'name', label: 'Name', type: 'text', required: true },
-          { name: 'company', label: 'Company', type: 'text', required: true },
-          { name: 'contact', label: 'Contact Email', type: 'email', required: false },
-          { name: 'value', label: 'Value', type: 'text', required: false },
-          { name: 'source', label: 'Source', type: 'text', required: false },
-          { name: 'assigned', label: 'Assigned To', type: 'text', required: false },
-          { name: 'stage', label: 'Stage', type: 'select', options: leadStages, required: true },
-        ];
-        case 'deal': return [
-          { name: 'title', label: 'Title', type: 'text', required: true },
-          { name: 'customer', label: 'Customer', type: 'text', required: true },
-          { name: 'value', label: 'Value', type: 'text', required: false },
-          { name: 'closeDate', label: 'Close Date', type: 'date', required: false },
-          { name: 'stage', label: 'Stage', type: 'select', options: dealStages, required: true },
-        ];
-        default: return [];
-      }
-    };
-    
-    const fields = getFields();
-    
-    return (
-      <div className="modal-backdrop" onClick={closeModal} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-        <div className="modal card" onClick={(e) => e.stopPropagation()} style={{ backgroundColor: 'white', borderRadius: '12px', padding: '24px', minWidth: '400px', maxWidth: '500px', maxHeight: '80vh', overflowY: 'auto' }}>
-          <div className="section-head modal-head" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
-            <div>
-              <p className="eyebrow" style={{ color: '#666', fontSize: '12px' }}>CRM record</p>
-              <h2 style={{ margin: 0 }}>{`${action} ${entityLabel}`}</h2>
-            </div>
-            <button type="button" className="icon-button" onClick={closeModal} style={{ background: 'none', border: 'none', fontSize: '20px', cursor: 'pointer' }}>✕</button>
-          </div>
+        <ModalShell
+          title="Edit Settings"
+          subtitle="Update your preferences"
+          onClose={closeModal}
+        >
           <form className="modal-form" onSubmit={handleModalSubmit}>
-            {fields.map((field) => (
-              <label key={field.name} style={{ display: 'block', marginBottom: '16px' }}>
-                <span style={{ display: 'block', marginBottom: '4px', fontWeight: '500' }}>{field.label}</span>
-                {field.type === 'textarea' ? (
-                  <textarea name={field.name} defaultValue={record[field.name] || ''} required={field.required} style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #ccc' }} />
-                ) : field.type === 'select' ? (
-                  <select name={field.name} defaultValue={record[field.name] || field.options[0]} required={field.required} style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #ccc' }}>
-                    {field.options.map((option) => (<option key={option} value={option}>{option}</option>))}
-                  </select>
-                ) : (
-                  <input type={field.type} name={field.name} defaultValue={record[field.name] || ''} required={field.required} style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid #ccc' }} />
-                )}
-              </label>
-            ))}
-            <div className="modal-actions" style={{ display: 'flex', gap: '10px', marginTop: '20px', justifyContent: 'flex-end' }}>
-              <button type="button" className="secondary-button" onClick={closeModal} style={{ padding: '8px 16px', cursor: 'pointer', backgroundColor: '#e5e7eb', border: 'none', borderRadius: '6px' }}>Cancel</button>
-              <button type="submit" className="primary-button" style={{ padding: '8px 16px', cursor: 'pointer', backgroundColor: '#2563eb', color: 'white', border: 'none', borderRadius: '6px' }}>{action}</button>
+            <label>
+              Company Name
+              <input
+                type="text"
+                name="companyName"
+                defaultValue={settings.companyName}
+              />
+            </label>
+            <label>
+              Notification Email
+              <input
+                type="email"
+                name="notificationEmail"
+                defaultValue={settings.notificationEmail}
+              />
+            </label>
+            <label className="checkbox-label">
+              <input
+                type="checkbox"
+                name="emailAlerts"
+                defaultChecked={settings.emailAlerts}
+              />
+              Email Alerts
+            </label>
+            <label className="checkbox-label">
+              <input
+                type="checkbox"
+                name="inAppNotifications"
+                defaultChecked={settings.inAppNotifications}
+              />
+              In-App Notifications
+            </label>
+            <div className="modal-actions">
+              <button
+                type="button"
+                className="secondary-button"
+                onClick={closeModal}
+              >
+                Cancel
+              </button>
+              <button type="submit" className="primary-button">
+                Save
+              </button>
             </div>
           </form>
-        </div>
-      </div>
+        </ModalShell>
+      );
+    }
+
+    const record = modal.record ?? {};
+    const fieldsByEntity = {
+      customer: [
+        ["name", "Name", "text"],
+        ["company", "Company", "text"],
+        ["email", "Email", "email"],
+        ["phone", "Phone", "tel"],
+        ["status", "Status", "select", ["Active", "Lead", "At Risk"]],
+        ["lastContact", "Last Contact", "date"],
+      ],
+      task: [
+        ["title", "Title", "text"],
+        ["description", "Description", "textarea"],
+        ["due", "Due Date", "date"],
+        ["priority", "Priority", "select", ["High", "Medium", "Low"]],
+        ["assigned", "Assigned To", "text"],
+        ["status", "Status", "select", ["Open", "In Progress", "Done"]],
+      ],
+      lead: [
+        ["name", "Name", "text"],
+        ["company", "Company", "text"],
+        ["contact", "Contact Email", "email"],
+        ["value", "Value", "text"],
+        ["source", "Source", "text"],
+        ["assigned", "Assigned To", "text"],
+        ["stage", "Stage", "select", leadStages],
+      ],
+      deal: [
+        ["title", "Title", "text"],
+        ["customer", "Customer", "text"],
+        ["value", "Value", "text"],
+        ["closeDate", "Close Date", "date"],
+        ["stage", "Stage", "select", dealStages],
+      ],
+    };
+
+    const fields = fieldsByEntity[modal.entity] || [];
+
+    return (
+      <ModalShell
+        title={`${action} ${entityLabel}`}
+        subtitle="CRM record"
+        onClose={closeModal}
+      >
+        <form className="modal-form" onSubmit={handleModalSubmit}>
+          {fields.map(([name, label, type, options]) => (
+            <label key={name}>
+              {label}
+              {type === "textarea" ? (
+                <textarea name={name} defaultValue={record[name] ?? ""} />
+              ) : type === "select" ? (
+                <select name={name} defaultValue={record[name] ?? options?.[0]}>
+                  {options?.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <input
+                  type={type}
+                  name={name}
+                  defaultValue={record[name] ?? ""}
+                />
+              )}
+            </label>
+          ))}
+          <div className="modal-actions">
+            <button
+              type="button"
+              className="secondary-button"
+              onClick={closeModal}
+            >
+              Cancel
+            </button>
+            <button type="submit" className="primary-button">
+              {action}
+            </button>
+          </div>
+        </form>
+      </ModalShell>
     );
   }
 
@@ -703,7 +745,11 @@ function CRMApp() {
     setSearch,
     currentProfile,
     onNavigate: navigate,
-    onToggleTheme: () => setPreferences((current) => ({ ...current, theme: current.theme === "dark" ? "light" : "dark" })),
+    onToggleTheme: () =>
+      setPreferences((current) => ({
+        ...current,
+        theme: current.theme === "dark" ? "light" : "dark",
+      })),
     onNotificationsToggle: () => setNotificationsOpen((current) => !current),
     onProfileToggle: () => setProfileOpen((current) => !current),
     onSignOut: signOut,
@@ -721,7 +767,8 @@ function CRMApp() {
     loading,
     analytics,
     data,
-    onSelectCustomer: (customer) => setData((current) => ({ ...current, selectedCustomerId: customer.id })),
+    onSelectCustomer: (customer) =>
+      setData((current) => ({ ...current, selectedCustomerId: customer.id })),
     onUpdateTaskDone: handleUpdateTaskDone,
     modalContent: renderModal(),
   });
