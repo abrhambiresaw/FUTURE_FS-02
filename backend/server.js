@@ -339,27 +339,6 @@ app.use((error, _request, response, _next) => {
   });
 });
 
-async function start() {
-  try {
-    await mongoose.connect(mongoUri, { serverSelectionTimeoutMS: 3000 });
-    await seedDemoUsers();
-
-    await Promise.all([Customer.init(), Lead.init(), Deal.init(), Task.init()]);
-  } catch (error) {
-    useMemoryStore = true;
-    await seedDemoUsers();
-    console.warn(
-      `MongoDB is unavailable, so auth is using in-memory demo users: ${error.message}`,
-    );
-  }
-
-  app.listen(port, () => {
-    console.log(`CRM backend listening on http://localhost:${port}`);
-  });
-}
-
-start();
-
 app.get("/api/customers", authRequired, async (req, res) => {
   try {
     const customers = await Customer.find().sort({ createdAt: -1 });
@@ -544,3 +523,31 @@ app.get("/api/sync-all", authRequired, async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 });
+
+
+
+async function initializeDatabase() {
+  try {
+    await mongoose.connect(mongoUri, { serverSelectionTimeoutMS: 3000 });
+    await seedDemoUsers();
+    await Promise.all([Customer.init(), Lead.init(), Deal.init(), Task.init()]);
+    return true;
+  } catch (error) {
+    useMemoryStore = true;
+    await seedDemoUsers();
+    console.warn(
+      `MongoDB is unavailable, using in-memory demo users: ${error.message}`
+    );
+    return false;
+  }
+}
+
+if (process.env.NODE_ENV !== 'production') {
+  initializeDatabase().then(() => {
+    app.listen(port, () => {
+      console.log(`CRM backend listening on http://localhost:${port}`);
+    });
+  });
+}
+
+export default app;
