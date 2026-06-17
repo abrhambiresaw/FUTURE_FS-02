@@ -23,7 +23,7 @@ const demoUsers = [
   {
     email: "jordan@crmsuite.com",
     password: "demo123",
-    name: "Jordan Lee",
+    name: "Abrham",
     role: "Admin",
     company: "CRM Suite",
   },
@@ -45,6 +45,51 @@ const demoUsers = [
 
 app.use(cors());
 app.use(express.json());
+
+// ============================================
+// ROOT ENDPOINT - API Information
+// ============================================
+app.get('/', (req, res) => {
+  res.json({
+    name: 'Mini CRM API',
+    version: '1.0.0',
+    status: 'online',
+    timestamp: new Date().toISOString(),
+    endpoints: {
+      health: '/api/health',
+      auth: {
+        login: 'POST /api/auth/login',
+        register: 'POST /api/auth/register',
+        me: 'GET /api/auth/me',
+        forgotPassword: 'POST /api/auth/forgot-password'
+      },
+      customers: {
+        list: 'GET /api/customers',
+        create: 'POST /api/customers',
+        update: 'PUT /api/customers/:id',
+        delete: 'DELETE /api/customers/:id'
+      },
+      leads: {
+        list: 'GET /api/leads',
+        create: 'POST /api/leads',
+        update: 'PUT /api/leads/:id',
+        delete: 'DELETE /api/leads/:id'
+      },
+      deals: {
+        list: 'GET /api/deals',
+        create: 'POST /api/deals',
+        update: 'PUT /api/deals/:id',
+        delete: 'DELETE /api/deals/:id'
+      },
+      tasks: {
+        list: 'GET /api/tasks',
+        create: 'POST /api/tasks',
+        update: 'PUT /api/tasks/:id',
+        delete: 'DELETE /api/tasks/:id'
+      }
+    }
+  });
+});
 
 function isValidEmail(email) {
   return typeof email === "string" && emailRegex.test(email.trim());
@@ -523,8 +568,6 @@ app.get("/api/sync-all", authRequired, async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 });
-
-
 
 async function initializeDatabase() {
   try {
