@@ -49,7 +49,7 @@ export function renderAuthPage({
             className={page === 'forgot' ? 'tab active' : 'tab'}
             onClick={() => onNavigate('forgot')}
           >
-            Forgot Password
+            {/* Forgot Password */}
           </button>
         </div>
 
