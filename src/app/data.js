@@ -80,8 +80,8 @@ export const notifications = [
 ]
 
 export const profiles = {
-  Admin: { name: 'Jordan Lee', role: 'Admin', email: 'jordan@crmsuite.com' },
-  Manager: { name: 'Mia Carter', role: 'Manager', email: 'mia@crmsuite.com' },
+  Admin: { name: 'Abrham', role: 'Admin', email: 'jordan@crmsuite.com' },
+  Manager: { name: 'kebede Alemu', role: 'Manager', email: 'mia@crmsuite.com' },
   'Sales Agent': { name: 'Alex Kim', role: 'Sales Agent', email: 'alex@crmsuite.com' },
 }
 
