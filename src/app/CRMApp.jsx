@@ -250,14 +250,23 @@ function CRMApp() {
 
     try {
       if (page === "login") {
-        
-        if (email && password) {
-          setPreferences((current) => ({ ...current, isAuthenticated: true }));
-          navigate("/dashboard", true);
-          return;
-        } else {
-          throw new Error("Please enter email and password");
+        const gmailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
+
+        if (!gmailRegex.test(email)) {
+          throw new Error("Please enter a valid Gmail address.");
         }
+
+        if (!password) {
+          throw new Error("Please enter your password.");
+        }
+
+        setPreferences((current) => ({
+          ...current,
+          isAuthenticated: true,
+        }));
+
+        navigate("/dashboard", true);
+        return;
       }
 
       if (page === "register") {
@@ -276,7 +285,6 @@ function CRMApp() {
       }
 
       if (page === "forgot") {
-       
         setAuthMessage(`Password reset link has been sent to ${email}`);
         return;
       }
@@ -286,8 +294,6 @@ function CRMApp() {
       setAuthBusy(false);
     }
   }
-
- 
 
   function createCustomerRecord(fields) {
     const newCustomer = { id: Date.now(), ...fields };
@@ -468,10 +474,19 @@ function CRMApp() {
       return;
     }
 
-  
     if (modal.entity === "settings") {
-      updateSettings(values);
+      updateSettings({
+        companyName: values.companyName,
+
+        notificationEmail: values.notificationEmail,
+
+        emailAlerts: values.emailAlerts === "on",
+
+        inAppNotifications: values.inAppNotifications === "on",
+      });
+
       closeModal();
+
       return;
     }
 
@@ -481,7 +496,6 @@ function CRMApp() {
       return;
     }
 
-   
     if (modal.entity === "customer") {
       if (modal.mode === "edit") updateCustomerRecord(modal.record, values);
       else createCustomerRecord(values);
@@ -621,15 +635,34 @@ function CRMApp() {
                 name="emailAlerts"
                 defaultChecked={settings.emailAlerts}
               />
-              Email Alerts
+              Enable Email Alerts
             </label>
+
             <label className="checkbox-label">
               <input
                 type="checkbox"
                 name="inAppNotifications"
                 defaultChecked={settings.inAppNotifications}
               />
-              In-App Notifications
+              Enable In-App Notifications
+            </label>
+
+            <label className="checkbox-label">
+              <input
+                type="checkbox"
+                name="taskReminders"
+                defaultChecked={settings.taskReminders}
+              />
+              Enable Task Reminders
+            </label>
+
+            <label className="checkbox-label">
+              <input
+                type="checkbox"
+                name="pipelineUpdates"
+                defaultChecked={settings.pipelineUpdates}
+              />
+              Pipeline Update Notifications
             </label>
             <div className="modal-actions">
               <button
