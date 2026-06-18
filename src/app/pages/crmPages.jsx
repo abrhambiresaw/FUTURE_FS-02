@@ -70,7 +70,7 @@ export function renderAuthPage({
                 placeholder="you@company.com"
                 value={getValue('login', 'email')}
                 onChange={(e) => onAuthChange('login', 'email', e.target.value)}
-                autoComplete="email"
+                autoComplete="off"
                 required
               />
             </label>
@@ -83,7 +83,7 @@ export function renderAuthPage({
                 placeholder="Enter your password"
                 value={getValue('login', 'password')}
                 onChange={(e) => onAuthChange('login', 'password', e.target.value)}
-                autoComplete="current-password"
+                autoComplete="off"
                 required
               />
             </label>
