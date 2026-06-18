@@ -140,7 +140,7 @@ export function renderAuthPage({
                 placeholder="Your full name"
                 value={getValue('register', 'name')}
                 onChange={(e) => onAuthChange('register', 'name', e.target.value)}
-                autoComplete="name"
+                autoComplete="new-name"
                 required
               />
             </label>
@@ -153,7 +153,7 @@ export function renderAuthPage({
                 placeholder="you@company.com"
                 value={getValue('register', 'email')}
                 onChange={(e) => onAuthChange('register', 'email', e.target.value)}
-                autoComplete="email"
+                autoComplete="new-email"
                 required
               />
             </label>

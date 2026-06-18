@@ -66,14 +66,14 @@ function CRMApp() {
   const [authMessage, setAuthMessage] = useState("");
   const [authBusy, setAuthBusy] = useState(false);
   const [authDrafts, setAuthDrafts] = useState(() => ({
-    login: { email: defaultEmail, password: "demo123" },
+    login: { email: "", password: "" },
     register: {
-      name: "Taylor Morgan",
-      email: "taylor@company.com",
-      company: "Acme Growth Partners",
+      name: "",
+      email: "",
+      company: "",
       password: "",
     },
-    forgot: { email: defaultEmail },
+    forgot: { email: "" },
   }));
 
   useEffect(() => {
